@@ -1,0 +1,77 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #2c2c2c, #111);
+  color: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.booking-container {
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+.booking-card {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  align-items: center;
+}
+
+.booking-image img {
+  width: 260px;
+  height: 180px;
+  border-radius: 15px;
+  object-fit: cover;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+}
+
+.booking-detail h2 {
+  margin-bottom: 15px;
+  color: #00fff7;
+  font-size: 1.8rem;
+}
+
+.booking-detail p {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.btn-group {
+  margin-top: 20px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 25px;
+  background: #00b7eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.2s;
+  margin-right: 10px;
+}
+
+.btn:hover {
+  background: #00a1cc;
+  transform: scale(1.05);
+}
+
+.btn.danger {
+  background: #e74c3c;
+}
+
+.btn.danger:hover {
+  background: #c0392b;
+}
+
