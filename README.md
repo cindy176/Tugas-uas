@@ -1,3 +1,1 @@
 # Tugas_UAS
-
-# cape
