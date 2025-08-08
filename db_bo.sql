@@ -24,29 +24,8 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `bengkel`
+-- Table structure for table `stasiun`
 --
-
-CREATE TABLE `bengkel` (
-  `workshop_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `address` text NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `owner_id` int(11) DEFAULT NULL,
-  `open_time` time DEFAULT NULL,
-  `close_time` time DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `image` varchar(255) DEFAULT 'default.jpg'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `bengkel`
---
-
-INSERT INTO `bengkel` (`workshop_id`, `name`, `address`, `phone`, `owner_id`, `open_time`, `close_time`, `created_at`, `image`) VALUES
-(1, 'Bengkel Anjay Motor', 'Jl. Mawar No. 123, Bandung', NULL, NULL, NULL, NULL, '2025-07-20 16:42:50', '4045rlys.png'),
-(2, 'Bengkel Motor Jaya', 'Jl. Melati No. 45, Jakarta', NULL, NULL, NULL, NULL, '2025-07-20 16:42:50', 'kucing-montir-5-3eba3d3bd7713d93e893d78a6f57e31c-95c1a53f0696d0c7aad3c9b56b8da200.jpg'),
-(3, 'Bengkel Sukses Abadi', 'Jl. Kenanga No. 10, Surabaya', NULL, NULL, NULL, NULL, '2025-07-20 16:42:50', 'potret-kocak-di-bengkel.jpg');
 
 -- --------------------------------------------------------
 
@@ -57,7 +36,7 @@ INSERT INTO `bengkel` (`workshop_id`, `name`, `address`, `phone`, `owner_id`, `o
 CREATE TABLE `bookings` (
   `booking_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `workshop_id` int(11) NOT NULL,
+  `jadwal_id` int(11) DEFAULT NULL,
   `service_id` int(11) NOT NULL,
   `booking_date` date NOT NULL,
   `booking_time` time NOT NULL,
@@ -129,7 +108,7 @@ INSERT INTO `kereta` (`id`, `nama_kereta`, `address`, `image`, `workshop_id`) VA
 CREATE TABLE `reviews` (
   `review_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `workshop_id` int(11) NOT NULL,
+  `jadwal_id` int(11) DEFAULT NULL,
   `rating` int(11) DEFAULT NULL CHECK (`rating` between 1 and 5),
   `comment` text DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
@@ -143,7 +122,7 @@ CREATE TABLE `reviews` (
 
 CREATE TABLE `services` (
   `service_id` int(11) NOT NULL,
-  `workshop_id` int(11) NOT NULL,
+  `category` varchar(50) NOT NULL DEFAULT 'KRL',
   `service_name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
   `price` decimal(10,2) DEFAULT NULL,
@@ -154,14 +133,17 @@ CREATE TABLE `services` (
 -- Dumping data for table `services`
 --
 
-INSERT INTO `services` (`service_id`, `workshop_id`, `service_name`, `description`, `price`, `duration`) VALUES
-(8, 1, 'Pemesanan Makanan', 'Pesan makanan langsung dari kursi Anda', 50000.00, 10),
-(9, 1, 'Permintaan Selimut', 'Layanan penyediaan selimut untuk kenyamanan penumpang', 0.00, 5),
-(10, 1, 'Bantuan Medis', 'Panggil petugas medis untuk penanganan darurat', 0.00, 0),
-(11, 1, 'Informasi Jadwal', 'Layanan informasi jadwal stasiun dan kereta', 0.00, 5),
-(12, 1, 'Layanan Kebersihan', 'Panggil petugas kebersihan ke kursi Anda', 0.00, 10),
-(13, 1, 'Peminjaman Charger', 'Pinjam charger HP untuk sementara', 10000.00, 30),
-(14, 1, 'Koneksi Wi-Fi Premium', 'Akses internet kecepatan tinggi', 20000.00, 60);
+INSERT INTO `services` (`service_id`, `category`, `service_name`, `description`, `price`, `duration`) VALUES
+(1, 'KRL', 'Tiket Ekonomi', 'Tiket KRL kelas ekonomi', 5000.00, 0),
+(2, 'KRL', 'Tiket Bisnis', 'Tiket KRL kelas bisnis', 10000.00, 0),
+(3, 'KRL', 'Tiket Eksekutif', 'Tiket KRL kelas eksekutif', 15000.00, 0),
+(4, 'KRL', 'Pemesanan Makanan', 'Pesan makanan langsung dari kursi Anda', 50000.00, 10),
+(5, 'KRL', 'Permintaan Selimut', 'Layanan penyediaan selimut untuk kenyamanan penumpang', 0.00, 5),
+(6, 'KRL', 'Bantuan Medis', 'Panggil petugas medis untuk penanganan darurat', 0.00, 0),
+(7, 'KRL', 'Informasi Jadwal', 'Layanan informasi jadwal stasiun dan kereta', 0.00, 5),
+(8, 'KRL', 'Layanan Kebersihan', 'Panggil petugas kebersihan ke kursi Anda', 0.00, 10),
+(9, 'KRL', 'Peminjaman Charger', 'Pinjam charger HP untuk sementara', 10000.00, 30),
+(10, 'KRL', 'Koneksi Wi-Fi Premium', 'Akses internet kecepatan tinggi', 20000.00, 60);
 
 -- --------------------------------------------------------
 
@@ -202,7 +184,7 @@ CREATE TABLE `transaksi` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Table structure foSr table `users`
 --
 
 CREATE TABLE `users` (
@@ -238,18 +220,16 @@ INSERT INTO `users` (`user_id`, `nama`, `email`, `password`, `phone`, `role`, `c
 -- Indexes for dumped tables
 --
 
---
--- Indexes for table `bengkel`
---
-ALTER TABLE `bengkel`
-  ADD PRIMARY KEY (`workshop_id`),
-  ADD KEY `owner_id` (`owner_id`);
+
 
 --
 -- Indexes for table `bookings`
 --
 ALTER TABLE `bookings`
-  ADD PRIMARY KEY (`booking_id`);
+  ADD PRIMARY KEY (`booking_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `jadwal_id` (`jadwal_id`),
+  ADD KEY `service_id` (`service_id`);
 
 --
 -- Indexes for table `jadwal`
@@ -272,14 +252,13 @@ ALTER TABLE `kereta`
 ALTER TABLE `reviews`
   ADD PRIMARY KEY (`review_id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `workshop_id` (`workshop_id`);
+  ADD KEY `jadwal_id` (`jadwal_id`);
 
 --
 -- Indexes for table `services`
 --
 ALTER TABLE `services`
-  ADD PRIMARY KEY (`service_id`),
-  ADD KEY `workshop_id` (`workshop_id`);
+  ADD PRIMARY KEY (`service_id`);
 
 --
 -- Indexes for table `stasiun`
@@ -304,11 +283,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for dumped tables
 --
 
---
--- AUTO_INCREMENT for table `bengkel`
---
-ALTER TABLE `bengkel`
-  MODIFY `workshop_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
 
 --
 -- AUTO_INCREMENT for table `bookings`
@@ -362,11 +337,7 @@ ALTER TABLE `users`
 -- Constraints for dumped tables
 --
 
---
--- Constraints for table `bengkel`
---
-ALTER TABLE `bengkel`
-  ADD CONSTRAINT `bengkel_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+
 
 --
 -- Constraints for table `jadwal`
@@ -377,38 +348,37 @@ ALTER TABLE `jadwal`
   ADD CONSTRAINT `jadwal_ibfk_3` FOREIGN KEY (`stasiun_akhir`) REFERENCES `stasiun` (`id`);
 
 --
+-- Constraints for table `bookings`
+--
+ALTER TABLE `bookings`
+  ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`jadwal_id`) REFERENCES `jadwal`(`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `bookings_ibfk_3` FOREIGN KEY (`service_id`) REFERENCES `services`(`service_id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `reviews`
 --
 ALTER TABLE `reviews`
   ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`workshop_id`) REFERENCES `bengkel` (`workshop_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `services`
---
-ALTER TABLE `services`
-  ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`workshop_id`) REFERENCES `bengkel` (`workshop_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`jadwal_id`) REFERENCES `jadwal`(`id`) ON DELETE CASCADE;
 COMMIT;
 
 -- =====================================================
 -- UPDATE UNTUK FITUR RIWAYAT TRANSAKSI KRL
 -- =====================================================
 
--- 1. Tambah kolom jadwal_id ke tabel bookings
-ALTER TABLE `bookings` ADD COLUMN `jadwal_id` INT NULL AFTER `user_id`;
+-- 1. Hapus kolom workshop_id dari tabel bookings (jika ada)
+ALTER TABLE `bookings` DROP COLUMN IF EXISTS `workshop_id`;
 
--- 2. Tambah foreign key untuk jadwal_id
+-- 2. Hapus kolom workshop_id dari tabel reviews (jika ada)
+ALTER TABLE `reviews` DROP COLUMN IF EXISTS `workshop_id`;
+
+-- 3. Hapus kolom workshop_id dari tabel services (jika ada)
+ALTER TABLE `services` DROP COLUMN IF EXISTS `workshop_id`;
+
+-- 4. Pastikan foreign key constraints sudah benar
 ALTER TABLE `bookings` ADD CONSTRAINT `fk_bookings_jadwal` 
 FOREIGN KEY (`jadwal_id`) REFERENCES `jadwal`(`id`) ON DELETE CASCADE;
-
--- 3. Ubah kolom workshop_id agar bisa NULL (untuk kompatibilitas)
-ALTER TABLE `bookings` MODIFY COLUMN `workshop_id` INT NULL;
-
--- 4. Update data services untuk KRL (jika belum ada)
-INSERT INTO `services` (`workshop_id`, `service_name`, `description`, `price`, `duration`) VALUES
-(1, 'Tiket Ekonomi', 'Tiket KRL kelas ekonomi', 5000.00, 0),
-(1, 'Tiket Bisnis', 'Tiket KRL kelas bisnis', 10000.00, 0),
-(1, 'Tiket Eksekutif', 'Tiket KRL kelas eksekutif', 15000.00, 0);
 
 -- 5. Hapus data users yang tidak pantas dan reset data
 DELETE FROM `users` WHERE `email` LIKE '%percobaan%' OR `email` LIKE '%kontol%' OR `email` LIKE '%capenyo%' OR `nama` LIKE '%anjing%' OR `nama` LIKE '%kontol%';

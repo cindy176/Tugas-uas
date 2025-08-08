@@ -110,3 +110,4 @@ INSERT INTO services (workshop_id, service_name, description, price, duration) V
 1. Pastikan file `riwayat.php` sudah dibuat
 2. Cek apakah CSS dan JavaScript sudah dimuat dengan benar
 3. Pastikan tidak ada error di console browser
+

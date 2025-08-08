@@ -36,8 +36,8 @@ if (!$jadwal) {
     exit;
 }
 
-// ✅ Ambil semua layanan yang tersedia (untuk KRL bisa berupa tipe tiket)
-$queryService = "SELECT service_id, service_name, price FROM services WHERE workshop_id = 1";
+// ✅ Ambil semua layanan yang tersedia (untuk KRL)
+$queryService = "SELECT service_id, service_name, price FROM services WHERE category = 'KRL'";
 $resultService = mysqli_query($conn, $queryService);
 $services = [];
 if ($resultService && mysqli_num_rows($resultService) > 0) {
@@ -70,20 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ✅ Pastikan semua data booking lengkap sebelum insert
     if ($jadwal_id && $service_id && $booking_date && $booking_time) {
-        // Ambil workshop_id dari service yang dipilih
-        $stmt_service = $conn->prepare("SELECT workshop_id FROM services WHERE service_id = ?");
-        $stmt_service->bind_param("i", $service_id);
-        $stmt_service->execute();
-        $result_service = $stmt_service->get_result();
-        $service_data = $result_service->fetch_assoc();
-        $workshop_id = $service_data['workshop_id'];
-        
-        // Insert booking dengan workshop_id dan jadwal_id
+        // Insert booking dengan jadwal_id
          $stmt = $conn->prepare("
-            INSERT INTO bookings (user_id, workshop_id, jadwal_id, service_id, booking_date, booking_time, status)
-            VALUES (?, ?, ?, ?, ?, ?, 'pending')
+            INSERT INTO bookings (user_id, jadwal_id, service_id, booking_date, booking_time, status)
+            VALUES (?, ?, ?, ?, ?, 'pending')
         ");
-        $stmt->bind_param("iiiiss", $user_id, $workshop_id, $jadwal_id, $service_id, $booking_date, $booking_time);
+        $stmt->bind_param("iiiss", $user_id, $jadwal_id, $service_id, $booking_date, $booking_time);
         $stmt->execute();
 
        // ✅ Setelah sukses booking → tampilkan alert dan redirect ke cari.php
