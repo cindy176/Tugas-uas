@@ -12,26 +12,32 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['user']['user_id'])) {
     exit();
 }
 
-// ✅ Ambil kereta_id dari URL
-$kereta_id = isset($_GET['workshop_id']) ? intval($_GET['workshop_id']) : 0;
-if ($kereta_id <= 0) {
+// ✅ Ambil jadwal_id dari URL
+$jadwal_id = isset($_GET['jadwal']) ? intval($_GET['jadwal']) : 0;
+if ($jadwal_id <= 0) {
     header("Location: cari.php");
     exit;
 }
 
-// ✅ Ambil detail kereta berdasarkan kereta_id
-$queryKereta = "SELECT nama_kereta, address, image FROM kereta WHERE id = $kereta_id";
-$resultKereta = mysqli_query($conn, $queryKereta);
-$kereta = mysqli_fetch_assoc($resultKereta);
+// ✅ Ambil detail jadwal berdasarkan jadwal_id
+$queryJadwal = "SELECT j.id, k.nama_kereta, s1.nama_stasiun AS stasiun_asal, s2.nama_stasiun AS stasiun_tujuan,
+                       j.waktu_berangkat, j.waktu_tiba
+                FROM jadwal j
+                JOIN kereta k ON j.id_kereta = k.id
+                JOIN stasiun s1 ON j.stasiun_awal = s1.id
+                JOIN stasiun s2 ON j.stasiun_akhir = s2.id
+                WHERE j.id = $jadwal_id";
+$resultJadwal = mysqli_query($conn, $queryJadwal);
+$jadwal = mysqli_fetch_assoc($resultJadwal);
 
-// Jika kereta tidak ditemukan
-if (!$kereta) {
-    echo "<h2 style='color:red;'>Kereta tidak ditemukan. <a href='cari.php'>Kembali</a></h2>";
+// Jika jadwal tidak ditemukan
+if (!$jadwal) {
+    echo "<h2 style='color:red;'>Jadwal tidak ditemukan. <a href='cari.php'>Kembali</a></h2>";
     exit;
 }
 
-// ✅ Ambil semua layanan yang tersedia di kereta ini
-$queryService = "SELECT service_id, service_name, price FROM services WHERE workshop_id = $kereta_id";
+// ✅ Ambil semua layanan yang tersedia (untuk KRL bisa berupa tipe tiket)
+$queryService = "SELECT service_id, service_name, price FROM services WHERE workshop_id = 1";
 $resultService = mysqli_query($conn, $queryService);
 $services = [];
 if ($resultService && mysqli_num_rows($resultService) > 0) {
@@ -63,13 +69,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ✅ Pastikan semua data booking lengkap sebelum insert
-    if ($kereta_id && $service_id && $booking_date && $booking_time) {
-        // Hapus `booking_id` dari query INSERT karena itu auto_increment
+    if ($jadwal_id && $service_id && $booking_date && $booking_time) {
+        // Ambil workshop_id dari service yang dipilih
+        $stmt_service = $conn->prepare("SELECT workshop_id FROM services WHERE service_id = ?");
+        $stmt_service->bind_param("i", $service_id);
+        $stmt_service->execute();
+        $result_service = $stmt_service->get_result();
+        $service_data = $result_service->fetch_assoc();
+        $workshop_id = $service_data['workshop_id'];
+        
+        // Insert booking dengan workshop_id dan jadwal_id
          $stmt = $conn->prepare("
-            INSERT INTO bookings (user_id, workshop_id, service_id, booking_date, booking_time, status)
-            VALUES (?, ?, ?, ?, ?, 'pending')
+            INSERT INTO bookings (user_id, workshop_id, jadwal_id, service_id, booking_date, booking_time, status)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending')
         ");
-        $stmt->bind_param("iiiss", $user_id, $kereta_id, $service_id, $booking_date, $booking_time);
+        $stmt->bind_param("iiiiss", $user_id, $workshop_id, $jadwal_id, $service_id, $booking_date, $booking_time);
         $stmt->execute();
 
        // ✅ Setelah sukses booking → tampilkan alert dan redirect ke cari.php
@@ -90,11 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <div class="form-container">
-    <h1>Booking di <?= htmlspecialchars($kereta['nama_kereta']); ?></h1>
-    <p>📍 <?= htmlspecialchars($kereta['address']); ?></p>
+    <h1>Booking Tiket <?= htmlspecialchars($jadwal['nama_kereta']); ?></h1>
+    <p>📍 <?= htmlspecialchars($jadwal['stasiun_asal']); ?> → <?= htmlspecialchars($jadwal['stasiun_tujuan']); ?></p>
+    <p>🕒 <?= htmlspecialchars($jadwal['waktu_berangkat']); ?> - <?= htmlspecialchars($jadwal['waktu_tiba']); ?></p>
 
     <form action="" method="POST" class="booking-form">
-      <input type="hidden" name="workshop_id" value="<?= $kereta_id; ?>">
+      <input type="hidden" name="jadwal_id" value="<?= $jadwal_id; ?>">
 
       <div class="form-group">
         <label for="service_id">Pilih Layanan</label>

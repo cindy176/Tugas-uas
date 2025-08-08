@@ -31,8 +31,9 @@ if (!isset($_SESSION['user'])) {
   <!-- MENU SLIDE -->
   <button class="menu-toggle" onclick="toggleMenu()">⋮</button>
   <div class="slide-menu" id="slideMenu">
-    <a href="cari.php">🚉 Home</a>
-    <a href="../pages/logout.php">🚪 Logout</a>
+    <a href="cari.php" class="active">🚉 Home</a>
+    <a href="riwayat.php">📋 Riwayat</a>
+    <a href="logout.php">🚪 Logout</a>
   </div>
   <div class="overlay" onclick="toggleMenu()" id="overlay"></div>
 
@@ -46,7 +47,7 @@ if (!isset($_SESSION['user'])) {
   <div class="grid-container">
     <?php
     $query = "SELECT j.id AS jadwal_id, k.nama_kereta, s1.nama_stasiun AS asal, s2.nama_stasiun AS tujuan, 
-                     j.waktu_berangkat, j.waktu_tiba, k.workshop_id
+                     j.waktu_berangkat, j.waktu_tiba
               FROM jadwal j
               JOIN kereta k ON j.id_kereta = k.id
               JOIN stasiun s1 ON j.stasiun_awal = s1.id
@@ -68,7 +69,7 @@ if (!isset($_SESSION['user'])) {
                   <span class="tag">💺 Ekonomi</span>
                   <span class="tag">🕒 Setiap Hari</span>
                 </div>
-                <a href="booking.php?id='.$row['workshop_id'].'&jadwal='.$row['jadwal_id'].'" class="btn-book">🎟️ Pesan Tiket</a>
+                <a href="transaksi.php?jadwal='.$row['jadwal_id'].'" class="btn-book">🎟️ Pesan Tiket</a>
               </div>
               <button class="btn-favorite"><i class="far fa-heart"></i></button>
             </div>
